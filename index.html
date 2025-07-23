@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Ipsum Redesigned</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0a0a1a;
+            color: #e0e0e0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 10;
+        }
+
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            background: rgba(10, 10, 26, 0.8);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem 3rem;
+            max-width: 900px;
+            width: 90%;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-height: 90vh;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 30rem;
+            color: #00ffff;
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #a0a0c0;
+            margin-bottom: 1.5rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .generate-btn {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(45deg, #ff00ff, #00ffff);
+            color: white;
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px #ff00ff, 0 0 25px #00ffff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px #ff00ff, 0 0 40px #00ffff;
+        }
+        
+        .generate-btn.launching::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: white;
+            border-radius: 50%;
+            animation: launch-effect 0.5s ease-out forwards;
+        }
+
+        @keyframes launch-effect {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(50); opacity: 0; }
+        }
+
+
+        #ipsum-output {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            height: 250px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #c0c0e0;
+            scrollbar-width: thin;
+            scrollbar-color: #00ffff #0a0a1a;
+        }
+        
+        #ipsum-output::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #ipsum-output::-webkit-scrollbar-track {
+            background: #0a0a1a;
+        }
+
+        #ipsum-output::-webkit-scrollbar-thumb {
+            background-color: #00ffff;
+            border-radius: 10px;
+            border: 2px solid #0a0a1a;
+        }
+
+        .copy-btn {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid #00ffff;
+            color: #00ffff;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            align-self: flex-end;
+            margin-top: -1rem;
+            margin-bottom: 1rem;
+        }
+
+        .copy-btn:hover {
+            background: rgba(0, 255, 255, 0.3);
+        }
+
+        .floating-icon {
+            position: fixed;
+            font-size: 2rem;
+            z-index: 0;
+            opacity: 0.6;
+            animation: float 20s infinite linear;
+            transition: transform 0.3s ease;
+        }
+        
+        .floating-icon:hover {
+            transform: scale(1.5) rotate(20deg);
+            opacity: 1;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(110vh) translateX(var(--x-start)) rotate(0deg); }
+            100% { transform: translateY(-10vh) translateX(var(--x-end)) rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="starfield"></canvas>
+
+    <div class="main-container">
+        <h1>Space Ipsum</h1>
+        <p class="subtitle">Redesigned by MUHAMMED SINAN MM</p>
+
+        <div class="controls">
+            <button id="generate-btn" class="generate-btn">Generate Ipsum</button>
+        </div>
+        
+        <button id="copy-btn" class="copy-btn" style="display: none;">Copy to Clipboard</button>
+        <div id="ipsum-output">
+            Your generated space text will appear here...
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- Starfield Canvas Animation ---
+            const canvas = document.getElementById('starfield');
+            const ctx = canvas.getContext('2d');
+
+            let width, height, stars;
+            const numStars = 200;
+
+            function initStars() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                stars = [];
+                for (let i = 0; i < numStars; i++) {
+                    stars.push({
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        z: Math.random() * width,
+                        o: Math.random() * (0.8 - 0.1) + 0.1
+                    });
+                }
+            }
+
+            function drawStars() {
+                ctx.clearRect(0, 0, width, height);
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                for (let i = 0; i < numStars; i++) {
+                    const star = stars[i];
+                    const k = 128.0 / star.z;
+                    const px = star.x * k + width / 2;
+                    const py = star.y * k + height / 2;
+                    if (px >= 0 && px <= width && py >= 0 && py <= height) {
+                        const size = (1 - star.z / width) * 2.5;
+                        ctx.rect(px, py, size, size);
+                    }
+                }
+                ctx.fill();
+            }
+
+            function updateStars() {
+                for (let i = 0; i < numStars; i++) {
+                    stars[i].z -= 0.4;
+                    if (stars[i].z <= 0) {
+                        stars[i].z = width;
+                    }
+                }
+            }
+            
+            function animateStars() {
+                drawStars();
+                updateStars();
+                requestAnimationFrame(animateStars);
+            }
+
+            initStars();
+            animateStars();
+            window.addEventListener('resize', initStars);
+
+            // --- Floating Icons ---
+            const icons = ['🚀', '🪐', '👽', '☄️', '🛰️', '✨', '🛸', '🌌'];
+            const numIcons = 10;
+
+            for (let i = 0; i < numIcons; i++) {
+                const icon = document.createElement('div');
+                icon.classList.add('floating-icon');
+                icon.textContent = icons[Math.floor(Math.random() * icons.length)];
+                icon.style.left = `${Math.random() * 100}vw`;
+                icon.style.top = `${Math.random() * 100}vh`;
+                icon.style.fontSize = `${Math.random() * 1.5 + 1}rem`;
+                icon.style.setProperty('--x-start', `${Math.random() * 200 - 100}px`);
+                icon.style.setProperty('--x-end', `${Math.random() * 200 - 100}px`);
+                icon.style.animationDuration = `${Math.random() * 20 + 15}s`;
+                icon.style.animationDelay = `${Math.random() * 10}s`;
+                document.body.appendChild(icon);
+            }
+
+            // --- Ipsum Generation ---
+            const generateBtn = document.getElementById('generate-btn');
+            const outputDiv = document.getElementById('ipsum-output');
+            const copyBtn = document.getElementById('copy-btn');
+
+            const spaceWords = {
+                nouns: ['galaxy', 'nebula', 'starship', 'planet', 'asteroid', 'cosmos', 'universe', 'wormhole', 'supernova', 'quasar', 'orbit', 'trajectory', 'lander', 'rover', 'satellite', 'black hole', 'singularity', 'event horizon'],
+                verbs: ['explore', 'orbit', 'launch', 'navigate', 'discover', 'traverse', 'propel', 'ignite', 'colonize', 'terraform', 'observe', 'communicate', 'warp', 'hyperspace'],
+                adjectives: ['interstellar', 'cosmic', 'zero-gravity', 'deep-space', 'celestial', 'astronomical', 'lunar', 'solar', 'galactic', 'futuristic', 'unidentified', 'extraterrestrial'],
+                phrases: [
+                    'through the vast emptiness of space', 'beyond the final frontier', 'at the edge of the known universe', 'powered by dark matter', 'in a parallel dimension', 'across the Milky Way', 'a quantum leap forward', 'faster than the speed of light',
+                    'a mission to the stars', 'the silence of the void'
+                ]
+            };
+
+            function getRandom(arr) {
+                return arr[Math.floor(Math.random() * arr.length)];
+            }
+
+            function generateSentence() {
+                let sentence = `The ${getRandom(spaceWords.adjectives)} ${getRandom(spaceWords.nouns)} ${getRandom(spaceWords.verbs)}s ${getRandom(spaceWords.phrases)}.`;
+                return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+            }
+
+            function generateParagraph() {
+                let paragraph = '';
+                const numSentences = Math.floor(Math.random() * 4) + 3; // 3-6 sentences
+                for (let i = 0; i < numSentences; i++) {
+                    paragraph += generateSentence() + ' ';
+                }
+                return paragraph;
+            }
+
+            generateBtn.addEventListener('click', () => {
+                // Launch animation
+                generateBtn.classList.add('launching');
+                setTimeout(() => generateBtn.classList.remove('launching'), 500);
+
+                // Generate text
+                let fullText = '';
+                const numParagraphs = 3;
+                for (let i = 0; i < numParagraphs; i++) {
+                    fullText += generateParagraph() + '\n\n';
+                }
+                outputDiv.textContent = fullText.trim();
+                copyBtn.style.display = 'inline-block';
+                copyBtn.textContent = 'Copy to Clipboard';
+            });
+
+            // --- Copy to Clipboard ---
+            copyBtn.addEventListener('click', () => {
+                // A workaround for clipboard API in secure contexts
+                const textarea = document.createElement('textarea');
+                textarea.value = outputDiv.textContent;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    copyBtn.textContent = 'Copied!';
+                } catch (err) {
+                    console.error('Failed to copy text: ', err);
+                    copyBtn.textContent = 'Error!';
+                }
+                document.body.removeChild(textarea);
+            });
+        });
+    </script>
+</body>
+
+</html>
